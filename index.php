@@ -1,8 +1,22 @@
 <?php
-$question = 'این یک پرسش نمونه است';
-$msg = 'این یک پاسخ نمونه است';
-$en_name = 'hafez';
-$fa_name = 'حافظ';
+$names=json_decode(file_get_contents('people.json'),true);
+if ($_POST["question"]!='') {
+	$question = $_POST["question"];
+	$en_name = $_POST["person"];
+	$fa_name = $names[$en_name];
+	$coded_msg = intval(hash('md5', $question . $fa_name)) % 16;
+        $respond = file('messages.txt');
+	$msg = $respond [$coded_msg];
+}
+else 
+{  
+	$question = '';
+	$msg = 'سوال خود را بپرس!';
+        $en_name = array_rand($names);
+        $fa_name = $names[$en_name];
+   
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +29,9 @@ $fa_name = 'حافظ';
 <p id="copyright">تهیه شده برای درس کارگاه کامپیوتر،دانشکده کامییوتر، دانشگاه صنعتی شریف</p>
 <div id="wrapper">
     <div id="title">
-        <span id="label">پرسش:</span>
+    <span id="label"><?php 
+    if ($question != NULL) echo "پرسش:"
+    ?></span>
         <span id="question"><?php echo $question ?></span>
     </div>
     <div id="container">
@@ -34,14 +50,15 @@ $fa_name = 'حافظ';
             سوال
             <input type="text" name="question" value="<?php echo $question ?>" maxlength="150" placeholder="..."/>
             را از
-            <select name="person">
-                <?php
-                /*
-                 * Loop over people data and
-                 * enter data inside `option` tag.
-                 * E.g., <option value="hafez">حافظ</option>
-                 */
-                ?>
+	    <select name="person">
+            <?php
+              $nm = array_keys($names);
+              foreach ($nm as $key) { ?>
+                        <option value=<?php echo $key;
+               if ($key == $en_name) echo ' selected';
+	       ?>> <?php echo $names[$key]; ?></option>
+              <?php }
+              ?>
             </select>
             <input type="submit" value="بپرس"/>
         </form>
